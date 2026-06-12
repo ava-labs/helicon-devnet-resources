@@ -1,0 +1,21 @@
+{
+  "name": "helicon-devnet-c-to-p-transfer",
+  "private": true,
+  "type": "module",
+  "description": "Transfer AVAX from C-Chain to P-Chain on the Helicon devnet (network 76)",
+  "scripts": {
+    "transfer": "tsx transfer.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@avalanche-sdk/client": "^0.1.1",
+    "dotenv": "^16.4.5",
+    "viem": "^2.21.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
