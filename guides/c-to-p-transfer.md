@@ -87,10 +87,25 @@ no positional form).
 
 ## Verify by RPC
 
-P-Chain balance for your address (in nAVAX; 1 AVAX = 1e9 nAVAX):
+You can confirm a transfer landed with `curl` alone — no platform-cli needed.
+
+First, get the P-Chain address for your key. The transfer script (Path A) prints it on every run,
+or derive it standalone from the key in `scripts/c-to-p-transfer/.env` (this prints only the public
+address, never the key):
+
+```bash
+cd scripts/c-to-p-transfer
+node --input-type=module -e "import 'dotenv/config'; import {privateKeyToAvalancheAccount} from '@avalanche-sdk/client/accounts'; console.log(privateKeyToAvalancheAccount(process.env.PRIVATE_KEY).getXPAddress('P','custom'));"
+```
+
+Then query the P-Chain balance for that address (in nAVAX; 1 AVAX = 1e9 nAVAX):
 
 ```bash
 curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"platform.getBalance","params":{"addresses":["P-custom1..."]}}' \
   https://api.avax-dev.network/ext/bc/P
 ```
+
+In the response, `balance` / `unlocked` are the total / spendable amounts and `utxoIDs` lists one
+entry per imported deposit. For the C-Chain side, use the standard `eth_getBalance` (returns wei,
+1 AVAX = 1e18 wei) against `https://api.avax-dev.network/ext/bc/C/rpc`.

@@ -30,27 +30,25 @@ compiles whatever branch is checked out, so building on `master` produces a bina
 Helicon support. The devnet runs commit `1339ef45dc6c`; the branch tip is compatible. The
 binary lands at `./build/avalanchego`.
 
-## 2. Get the network files
+## 2. Locate the network files
 
-Copy [`genesis/devnet76-genesis.json`](../genesis/devnet76-genesis.json) and
-[`genesis/devnet76-upgrade.json`](../genesis/devnet76-upgrade.json) from this repository.
+The genesis and upgrade files are already in this repo under [`genesis/`](../genesis/) — point the
+node at them directly in the next step. There's no need to copy them anywhere: they're
+version-controlled and persistent, unlike `/tmp`, which macOS purges on reboot. Note the absolute
+path to your clone (for example `$HOME/Documents/helicon-devnet-resources`) and substitute it for
+`/path/to/helicon-devnet-resources` in the run command below.
 
 > **Important:** these are byte-exact copies of the deployed manifests. The node only joins the
 > network if its genesis byte-matches the network's. Do **not** regenerate, reformat, or edit
 > them.
-
-```bash
-cp /path/to/helicon-devnet-resources/genesis/devnet76-genesis.json /tmp/
-cp /path/to/helicon-devnet-resources/genesis/devnet76-upgrade.json /tmp/
-```
 
 ## 3. Start the node
 
 ```bash
 ./build/avalanchego \
     --network-id=76 \
-    --genesis-file=/tmp/devnet76-genesis.json \
-    --upgrade-file=/tmp/devnet76-upgrade.json \
+    --genesis-file=/path/to/helicon-devnet-resources/genesis/devnet76-genesis.json \
+    --upgrade-file=/path/to/helicon-devnet-resources/genesis/devnet76-upgrade.json \
     --bootstrap-ips=52.201.126.172:9651,34.233.248.130:9651,107.21.11.213:9651,35.170.144.5:9651,98.82.41.186:9651 \
     --bootstrap-ids=NodeID-7Sh8EhHBbCFLdCWNZ8HNKxrAbx3Sfd6Z7,NodeID-Mc8tr74qzgdMbBk7zMYTrQi6T34LAJVMS,NodeID-2yCYFACGMZUodkJbDQEmjFh2XySKCXi8r,NodeID-RzMHUYevUej1KVZhv55tmRbU5tTnanwS,NodeID-2rY57hF6jKYvKB4Ttw8rSV1AxAxwLppYc \
     --data-dir=$HOME/.avalanchego-devnet76 \
