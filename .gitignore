@@ -3,3 +3,8 @@ dist/
 .env
 *.log
 .DS_Store
+
+# Tool checkouts the guides ask you to clone — keep them out of this repo
+/avalanchego/
+/platform-cli/
+/avalanche-sdk-typescript/

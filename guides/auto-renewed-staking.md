@@ -60,7 +60,7 @@ Your node generated a BLS key on first start. Fetch the NodeID and proof of poss
 node's local API:
 
 ```bash
-curl -s -X POST -H 'Content-Type: application/json' \
+curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"info.getNodeID","params":{}}' \
   http://127.0.0.1:9650/ext/info
 ```
@@ -99,7 +99,7 @@ three values used below.
 Verify the validator is active and inspect its auto-renew state:
 
 ```bash
-curl -s -X POST -H 'Content-Type: application/json' \
+curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"platform.getCurrentValidators","params":{"nodeIDs":["NodeID-..."]}}' \
   https://api.avax-dev.network/ext/bc/P
 ```
@@ -111,16 +111,20 @@ Auto-renewed validators report `period`, `autoCompoundRewardShares` (parts per m
 
 Both operations use the same command, signed by the owner key:
 
+Change next-cycle settings (here: 48h cycles, compound 30%):
+
 ```bash
-# change next-cycle settings: 48h cycles, compound 30%
 ./platform validator set-auto-config \
   --rpc-url https://api.avax-dev.network \
   --key-name mykey \
   --tx-id <AddAutoRenewedValidatorTx-ID> \
   --period 48h \
   --auto-compound 0.3
+```
 
-# graceful exit: finish the current cycle, then stop and withdraw everything
+Graceful exit — finish the current cycle, then stop and withdraw everything (`--period 0`):
+
+```bash
 ./platform validator set-auto-config \
   --rpc-url https://api.avax-dev.network \
   --key-name mykey \

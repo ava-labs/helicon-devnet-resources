@@ -15,13 +15,20 @@ A tracking node is enough to follow the chain, serve local RPC, and obtain the n
 
 There is no published release or Docker image for this branch — build from source:
 
+Run these from a directory **outside** this repo (e.g. your home directory) so the
+multi-hundred-MB checkout doesn't land inside `helicon-devnet-resources/`:
+
 ```bash
 git clone https://github.com/ava-labs/avalanchego.git
 cd avalanchego
-git checkout helicon-devnet   # the devnet runs commit 1339ef45dc6c
+git checkout helicon-devnet
 ./scripts/build.sh
-# → binary at ./build/avalanchego
 ```
+
+`git checkout helicon-devnet` must succeed **before** `./scripts/build.sh` — the build
+compiles whatever branch is checked out, so building on `master` produces a binary with no
+Helicon support. The devnet runs commit `1339ef45dc6c`; the branch tip is compatible. The
+binary lands at `./build/avalanchego`.
 
 ## 2. Get the network files
 
@@ -63,15 +70,15 @@ Notes:
 
 ```bash
 # P-Chain bootstrapped? — expect {"isBootstrapped":true} once synced
-curl -s -X POST -H 'Content-Type: application/json' \
+curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"info.isBootstrapped","params":{"chain":"P"}}' \
   http://127.0.0.1:9650/ext/info
 
 # Compare your local P-Chain height with the shared RPC — they should match
-curl -s -X POST -H 'Content-Type: application/json' \
+curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"platform.getHeight","params":{}}' \
   http://127.0.0.1:9650/ext/bc/P
-curl -s -X POST -H 'Content-Type: application/json' \
+curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"platform.getHeight","params":{}}' \
   https://api.avax-dev.network/ext/bc/P
 ```

@@ -34,22 +34,45 @@ Helicon activates the following ACPs:
 
 ### Quick connect
 
+Run the bundled check — it confirms the network IDs and tells you immediately if a web
+filter is blocking you:
+
 ```bash
-# C-Chain chainId — expect {"jsonrpc":"2.0","id":1,"result":"0xa86d"} (43117)
-curl -s -X POST -H 'Content-Type: application/json' \
+./scripts/check-connection.sh
+```
+
+Or check manually. Each call is its own block so it pastes cleanly into zsh. The commands
+have **no inline `#` comments**, because interactive zsh treats `#` as a literal argument
+rather than a comment (run `setopt interactive_comments` first if you paste commented
+commands from elsewhere).
+
+C-Chain chainId — returns `{"jsonrpc":"2.0","id":1,"result":"0xa86d"}` (43117):
+
+```bash
+curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' \
   https://api.avax-dev.network/ext/bc/C/rpc
+```
 
-# Network ID — expect "networkID":"76"
-curl -s -X POST -H 'Content-Type: application/json' \
+Network ID — returns `"networkID":"76"`:
+
+```bash
+curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"info.getNetworkID","params":{}}' \
   https://api.avax-dev.network/ext/info
+```
 
-# Current P-Chain height
-curl -s -X POST -H 'Content-Type: application/json' \
+P-Chain height:
+
+```bash
+curl -sS -X POST -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"platform.getHeight","params":{}}' \
   https://api.avax-dev.network/ext/bc/P
 ```
+
+> On an Ava-Labs-managed device these only work with **Jamf / Jamf Connect active** — it
+> provides the access tunnel to the dev infra. If `check-connection.sh` reports a filter
+> block, toggle Jamf on and re-run. External partners on their own networks are unaffected.
 
 ## Getting devnet AVAX
 
