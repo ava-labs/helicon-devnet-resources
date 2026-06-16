@@ -102,7 +102,7 @@ without overrides).
 ## Guides
 
 1. [Run a devnet node](guides/run-a-node.md) — build the `helicon-devnet` branch and sync network 76.
-2. [Move AVAX from C-Chain to P-Chain](guides/c-to-p-transfer.md) — runnable TypeScript script + CLI alternative.
+2. [Move AVAX from C-Chain to P-Chain](guides/c-to-p-transfer.md) — import a key into platform-cli, fund it, and transfer (TypeScript/avalanchejs alternative included).
 3. [Auto-renewed staking (ACP-236)](guides/auto-renewed-staking.md) — become a validator with the two new staking commands.
 
 ## Tooling status
@@ -113,7 +113,7 @@ ACP-236 support is not yet released in the standard tooling. Pinned, devnet-test
 |------|--------|---------------|
 | AvalancheGo `helicon-devnet` branch | devnet runs commit `1339ef45dc6c`; no published Docker image | build from source — [guides/run-a-node.md](guides/run-a-node.md) |
 | `platform-cli` ACP-236 commands (`validator add-auto-renewed`, `validator set-auto-config`) | [PR #28](https://github.com/ava-labs/platform-cli/pull/28), unmerged; e2e-tested against this devnet | build from the PR branch — [guides/auto-renewed-staking.md](guides/auto-renewed-staking.md) |
-| `@avalanche-sdk/client` ACP-236 helpers (`prepareAddAutoRenewedValidatorTxn`, `prepareSetAutoRenewedValidatorConfigTxn`) | [PR #379](https://github.com/ava-labs/avalanche-sdk-typescript/pull/379), unmerged; e2e-tested against this devnet | build from the PR branch — [guides/auto-renewed-staking.md](guides/auto-renewed-staking.md). The published `@avalanche-sdk/client` (v0.1.1) already covers C→P transfers. |
+| `@avalanche-sdk/client` ACP-236 helpers (`prepareAddAutoRenewedValidatorTxn`, `prepareSetAutoRenewedValidatorConfigTxn`) | [PR #379](https://github.com/ava-labs/avalanche-sdk-typescript/pull/379), unmerged; e2e-tested against this devnet | build from the PR branch — [guides/auto-renewed-staking.md](guides/auto-renewed-staking.md). For C→P transfers, the published `@avalanche-sdk/client` (v0.1.1) rejects custom networks — use platform-cli or the avalanchejs script ([guides/c-to-p-transfer.md](guides/c-to-p-transfer.md)). |
 
 ## Repository layout
 
@@ -126,6 +126,6 @@ ACP-236 support is not yet released in the standard tooling. Pinned, devnet-test
 │   ├── c-to-p-transfer.md
 │   └── auto-renewed-staking.md
 └── scripts/
-    ├── c-to-p-transfer/         # runnable TypeScript C→P transfer (published SDK)
+    ├── c-to-p-transfer/         # TypeScript C→P transfer via avalanchejs (programmatic alternative)
     └── stake-auto-renew.sh      # convenience wrapper around platform-cli add-auto-renewed
 ```

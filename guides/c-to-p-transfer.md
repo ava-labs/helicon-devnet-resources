@@ -7,45 +7,17 @@ two-step atomic operation: **export** from C, then **import** to P.
 To stake one validator you need **2,000 AVAX** on the P-Chain, plus a little extra for
 transaction fees — transferring **2,005 AVAX** is comfortable.
 
-Both paths below use the same key: a secp256k1 private key controls a C-Chain (0x...) address
-and a P-Chain (P-custom1...) address on this network.
+One key does both: a secp256k1 private key controls a C-Chain (`0x...`) address and a P-Chain
+(`P-custom1...`) address on this network. The walkthrough below uses `platform-cli` end to end —
+add that key to its keystore, fund it, and transfer — so the same key is ready to stake. A
+TypeScript/avalanchejs alternative for programmatic use is at the end.
 
 > Use throwaway keys on the devnet. Never reuse keys that hold funds on Mainnet.
 
-## Path A — TypeScript script (programmatic integration)
+## 1. Build platform-cli
 
-A runnable script built on [`@avalabs/avalanchejs`](https://www.npmjs.com/package/@avalabs/avalanchejs)
-lives in [`scripts/c-to-p-transfer/`](../scripts/c-to-p-transfer/). (It uses avalanchejs directly
-rather than the higher-level `@avalanche-sdk/client`, whose published release resolves X/P/C
-blockchain IDs from a hardcoded mainnet/fuji table and rejects custom networks like this devnet —
-avalanchejs takes every chain ID from the live context instead.)
-
-Requires Node.js (≥ 18; tested on 20–24). If `npm` is missing but you use nvm, run
-`nvm use 24` first. Then, from the repo root:
-
-```bash
-cd scripts/c-to-p-transfer
-npm install
-cp -n .env.example .env
-npm run transfer
-```
-
-Edit `.env` to set `PRIVATE_KEY` (a funded throwaway devnet key) and `AMOUNT_AVAX` between the
-copy and the run. `cp -n` won't overwrite an existing `.env`, so it's safe to re-run; the script
-refuses to run while `PRIVATE_KEY` is still the placeholder.
-
-The script exports from C, waits for the atomic transaction to be accepted, imports to P, and
-prints balances before and after. Read [`transfer.ts`](../scripts/c-to-p-transfer/transfer.ts)
-to see the exact avalanchejs calls (`Context.getContextFromURI`, `evm.newExportTxFromBaseFee`,
-`pvm.newImportTx`, `addTxSignatures`, and `issueSignedTx`) for embedding in your own systems.
-
-## Path B — platform-cli
-
-[`platform-cli`](https://github.com/ava-labs/platform-cli) has a combined export+import command.
-`transfer c-to-p` is on the `main` branch, so a plain build works — you do **not** need the
-ACP-236 PR branch for this (that branch only adds the staking commands, and includes this one too).
-
-Build it from a directory **outside** this repo (the build auto-fetches the Go toolchain it needs):
+[`platform-cli`](https://github.com/ava-labs/platform-cli) has a combined export+import command,
+`transfer c-to-p`, on its `main` branch — a plain build works:
 
 ```bash
 git clone https://github.com/ava-labs/platform-cli.git
@@ -53,20 +25,45 @@ cd platform-cli
 go build -o platform .
 ```
 
-That produces a `platform` binary in the platform-cli directory. Run the commands below **from
-that directory** (or move the binary onto your PATH) — `./platform` only resolves where the binary
-lives.
+Build it from a directory **outside** this repo; the build auto-fetches the Go toolchain it needs.
+That produces a `platform` binary — run the commands below **from that directory** (or move the
+binary onto your `PATH`), since `./platform` only resolves where the binary lives.
 
-Generate a throwaway devnet key in the keystore (`--encrypt=false` keeps it non-interactive; omit
-it to encrypt with a password):
+> Planning to stake afterward? Build the [ACP-236 PR branch](auto-renewed-staking.md) instead — it
+> includes `transfer c-to-p` plus the staking commands, so you build only once.
+
+## 2. Add your key to the keystore
+
+Import the throwaway devnet key you want to stake with — `platform keys import` reads it from a
+hidden prompt and accepts either the `0x...` hex or the CB58 `PrivateKey-...` form:
+
+```bash
+./platform keys import --name mykey --encrypt=false   # paste your key at the hidden prompt
+```
+
+Or generate a fresh one instead:
 
 ```bash
 ./platform keys generate --name mykey --encrypt=false
 ```
 
-It prints the key's **EVM address**. Drip devnet AVAX to that address at the
-[faucet](https://build.avax.network/console/primary-network/devnet-faucet), then transfer C → P
-(export + import in one step; `--network-id` is auto-detected as 76 from the RPC):
+Either command prints the key's **EVM (C-Chain) address** — you fund that next. This is the key you
+use for the transfer *and* for staking, so keep the name (`mykey`) handy. (`--encrypt=false` keeps
+it non-interactive; omit it to encrypt the key with a password.)
+
+## 3. Fund the C-Chain address
+
+Drip devnet AVAX to the key's EVM address at the
+[faucet](https://build.avax.network/console/primary-network/devnet-faucet) — you need **2,005 AVAX**
+(2,000 to stake + a buffer for fees). Lost the address? Print it again:
+
+```bash
+./platform wallet address --key-name mykey --rpc-url https://api.avax-dev.network
+```
+
+## 4. Transfer C → P
+
+Export from C and import to P in one step (`--network-id` is auto-detected as 76 from the RPC):
 
 ```bash
 ./platform transfer c-to-p \
@@ -75,29 +72,21 @@ It prints the key's **EVM address**. Drip devnet AVAX to that address at the
   --rpc-url https://api.avax-dev.network
 ```
 
-Confirm the funds landed on the P-Chain:
+## 5. Confirm the balance
 
 ```bash
 ./platform wallet balance --key-name mykey --rpc-url https://api.avax-dev.network
 ```
 
-Already have a funded key? Import it instead of generating one — `./platform keys import --name
-mykey` reads the key from a hidden prompt and accepts either the CB58 `PrivateKey-...` or the
-`0x...` hex form. The `0x...` form is exactly the `PRIVATE_KEY` from Path A's `.env`, so a key you
-funded with the TypeScript script imports as-is (note the `--name` flag; there is no positional
-form).
+That's it — `mykey` now holds the stake on the P-Chain. Continue to
+[auto-renewed-staking.md](auto-renewed-staking.md), which signs with this same key.
 
-## Verify by RPC
+## Verify by RPC (optional)
 
-You can confirm a transfer landed with `curl` alone — no platform-cli needed.
-
-First, get the P-Chain address for your key. The transfer script (Path A) prints it on every run,
-or derive it standalone from the key in `scripts/c-to-p-transfer/.env` (this prints only the public
-address, never the key):
+You can confirm a transfer landed with `curl` alone. First get your key's P-Chain address:
 
 ```bash
-cd scripts/c-to-p-transfer
-node --input-type=module -e "import 'dotenv/config'; import {privateKeyToAvalancheAccount} from '@avalanche-sdk/client/accounts'; console.log(privateKeyToAvalancheAccount(process.env.PRIVATE_KEY).getXPAddress('P','custom'));"
+./platform wallet address --key-name mykey --rpc-url https://api.avax-dev.network
 ```
 
 Then query the P-Chain balance for that address (in nAVAX; 1 AVAX = 1e9 nAVAX):
@@ -111,3 +100,29 @@ curl -sS -X POST -H 'Content-Type: application/json' \
 In the response, `balance` / `unlocked` are the total / spendable amounts and `utxoIDs` lists one
 entry per imported deposit. For the C-Chain side, use the standard `eth_getBalance` (returns wei,
 1 AVAX = 1e18 wei) against `https://api.avax-dev.network/ext/bc/C/rpc`.
+
+## Programmatic alternative — TypeScript / avalanchejs
+
+To embed C → P transfers in your own systems, a runnable script built on
+[`@avalabs/avalanchejs`](https://www.npmjs.com/package/@avalabs/avalanchejs) lives in
+[`scripts/c-to-p-transfer/`](../scripts/c-to-p-transfer/). It uses avalanchejs directly rather than
+the higher-level `@avalanche-sdk/client`, whose published release resolves X/P/C blockchain IDs from
+a hardcoded mainnet/fuji table and rejects custom networks like this devnet — avalanchejs takes every
+chain ID from the live context instead.
+
+Requires Node.js (≥ 18; tested on 20–24). If `npm` is missing but you use nvm, run `nvm use 24`
+first. Then, from the repo root:
+
+```bash
+cd scripts/c-to-p-transfer
+npm install
+cp -n .env.example .env
+npm run transfer
+```
+
+Set `PRIVATE_KEY` (a funded throwaway devnet key) and `AMOUNT_AVAX` in `.env` between the copy and
+the run; the script refuses to run while `PRIVATE_KEY` is still the placeholder. It exports from C,
+waits for the atomic transaction, imports to P, and prints balances before and after. Read
+[`transfer.ts`](../scripts/c-to-p-transfer/transfer.ts) for the exact avalanchejs calls
+(`Context.getContextFromURI`, `evm.newExportTxFromBaseFee`, `pvm.newImportTx`, `addTxSignatures`,
+`issueSignedTx`).

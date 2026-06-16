@@ -34,23 +34,10 @@ on the `helicon-devnet` branch.
 
 1. A synced devnet node you control — see [run-a-node.md](run-a-node.md). Validators must keep
    ≥80% uptime per cycle to renew, so the node should stay online.
-2. **2,000 devnet AVAX on the P-Chain** (+ a small buffer for fees) — see
-   [c-to-p-transfer.md](c-to-p-transfer.md).
+2. **2,000 devnet AVAX on the P-Chain** (+ a small buffer for fees), held by a `platform-cli`
+   keystore key — see [c-to-p-transfer.md](c-to-p-transfer.md). The commands below sign with that
+   same key (`--key-name mykey`).
 3. The `platform-cli` build with ACP-236 support (next step).
-
-> **Signing key.** The commands below sign with a `platform-cli` keystore key, referenced by name
-> (`--key-name mykey`). If you funded that key with **Path B** of the
-> [transfer guide](c-to-p-transfer.md) (`platform keys generate`), it is already in the keystore.
-> If your funded key instead lives in a `.env` — the `PRIVATE_KEY` from the transfer guide's
-> **Path A** TypeScript script — import it into the keystore once; `platform keys import` accepts
-> the `0x...` hex value directly:
->
-> ```bash
-> ./platform keys import --name mykey --encrypt=false   # paste your 0x... key at the hidden prompt
-> ```
->
-> Every `--key-name mykey` command below then works unchanged. Avoid `--private-key 0x...`, which
-> leaks the key into your shell history and the process list.
 
 ## 1. Build platform-cli with the ACP-236 commands
 
