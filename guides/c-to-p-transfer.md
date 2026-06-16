@@ -82,8 +82,10 @@ Confirm the funds landed on the P-Chain:
 ```
 
 Already have a funded key? Import it instead of generating one — `./platform keys import --name
-mykey` prompts for the `PrivateKey-...` value with hidden input (note the `--name` flag; there is
-no positional form).
+mykey` reads the key from a hidden prompt and accepts either the CB58 `PrivateKey-...` or the
+`0x...` hex form. The `0x...` form is exactly the `PRIVATE_KEY` from Path A's `.env`, so a key you
+funded with the TypeScript script imports as-is (note the `--name` flag; there is no positional
+form).
 
 ## Verify by RPC
 

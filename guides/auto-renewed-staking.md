@@ -38,6 +38,20 @@ on the `helicon-devnet` branch.
    [c-to-p-transfer.md](c-to-p-transfer.md).
 3. The `platform-cli` build with ACP-236 support (next step).
 
+> **Signing key.** The commands below sign with a `platform-cli` keystore key, referenced by name
+> (`--key-name mykey`). If you funded that key with **Path B** of the
+> [transfer guide](c-to-p-transfer.md) (`platform keys generate`), it is already in the keystore.
+> If your funded key instead lives in a `.env` — the `PRIVATE_KEY` from the transfer guide's
+> **Path A** TypeScript script — import it into the keystore once; `platform keys import` accepts
+> the `0x...` hex value directly:
+>
+> ```bash
+> ./platform keys import --name mykey --encrypt=false   # paste your 0x... key at the hidden prompt
+> ```
+>
+> Every `--key-name mykey` command below then works unchanged. Avoid `--private-key 0x...`, which
+> leaks the key into your shell history and the process list.
+
 ## 1. Build platform-cli with the ACP-236 commands
 
 The two commands ship in [PR #28](https://github.com/ava-labs/platform-cli/pull/28) (unmerged —
