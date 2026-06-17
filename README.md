@@ -113,7 +113,7 @@ ACP-236 support is not yet released in the standard tooling. Pinned, devnet-test
 |------|--------|---------------|
 | AvalancheGo `helicon-devnet` branch | devnet runs commit `1339ef45dc6c`; no published Docker image | build from source — [guides/run-a-node.md](guides/run-a-node.md) |
 | `platform-cli` ACP-236 commands (`validator add-auto-renewed`, `validator set-auto-config`) | [PR #28](https://github.com/ava-labs/platform-cli/pull/28), unmerged; e2e-tested against this devnet | build from the PR branch — [guides/auto-renewed-staking.md](guides/auto-renewed-staking.md) |
-| `@avalanche-sdk/client` ACP-236 helpers (`prepareAddAutoRenewedValidatorTxn`, `prepareSetAutoRenewedValidatorConfigTxn`) | [PR #379](https://github.com/ava-labs/avalanche-sdk-typescript/pull/379), unmerged; e2e-tested against this devnet | build from the PR branch — [guides/auto-renewed-staking.md](guides/auto-renewed-staking.md). For C→P transfers, the published `@avalanche-sdk/client` (v0.1.1) rejects custom networks — use platform-cli or the avalanchejs script ([guides/c-to-p-transfer.md](guides/c-to-p-transfer.md)). |
+| `@avalanche-sdk/client` ACP-236 helpers (`prepareAddAutoRenewedValidatorTxn`, `prepareSetAutoRenewedValidatorConfigTxn`) | [PR #379](https://github.com/ava-labs/avalanche-sdk-typescript/pull/379), unmerged; e2e-tested against this devnet | build from the PR branch. For C→P transfers, the published `@avalanche-sdk/client` (v0.1.1) rejects custom networks — use platform-cli or the avalanchejs script ([guides/c-to-p-transfer.md](guides/c-to-p-transfer.md)). |
 
 ## Repository layout
 
