@@ -78,28 +78,19 @@ Export from C and import to P in one step (`--network-id` is auto-detected as 76
 ./platform wallet balance --key-name mykey --rpc-url https://api.avax-dev.network
 ```
 
+This prints your key's P-Chain address and balance.
+
+> **Prefer raw RPC?** To confirm the same balance without platform-cli, query the P-Chain directly
+> for that `P-custom1...` address — `balance` comes back in nAVAX (1 AVAX = 1e9 nAVAX):
+>
+> ```bash
+> curl -sS -X POST -H 'Content-Type: application/json' \
+>   --data '{"jsonrpc":"2.0","id":1,"method":"platform.getBalance","params":{"addresses":["P-custom1..."]}}' \
+>   https://api.avax-dev.network/ext/bc/P
+> ```
+
 That's it — `mykey` now holds the stake on the P-Chain. Continue to
 [auto-renewed-staking.md](auto-renewed-staking.md), which signs with this same key.
-
-## Verify by RPC (optional)
-
-You can confirm a transfer landed with `curl` alone. First get your key's P-Chain address:
-
-```bash
-./platform wallet address --key-name mykey --rpc-url https://api.avax-dev.network
-```
-
-Then query the P-Chain balance for that address (in nAVAX; 1 AVAX = 1e9 nAVAX):
-
-```bash
-curl -sS -X POST -H 'Content-Type: application/json' \
-  --data '{"jsonrpc":"2.0","id":1,"method":"platform.getBalance","params":{"addresses":["P-custom1..."]}}' \
-  https://api.avax-dev.network/ext/bc/P
-```
-
-In the response, `balance` / `unlocked` are the total / spendable amounts and `utxoIDs` lists one
-entry per imported deposit. For the C-Chain side, use the standard `eth_getBalance` (returns wei,
-1 AVAX = 1e18 wei) against `https://api.avax-dev.network/ext/bc/C/rpc`.
 
 ## Programmatic alternative — TypeScript / avalanchejs
 
