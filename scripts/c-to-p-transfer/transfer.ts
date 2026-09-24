@@ -64,14 +64,21 @@ async function getPChainBalanceNavax(address: string): Promise<bigint> {
   return BigInt(result.balance);
 }
 
+// avax.getAtomicTxStatus is not served after Helicon. Poll avax.getAtomicTx instead: it returns
+// blockHeight once the tx is accepted, and a "not found" error before. HTTP 429 means retry.
 async function waitForCChainAtomicTx(txId: string, timeoutMs = 60_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const { status } = await rpc<{ status: string }>("/ext/bc/C/avax", "avax.getAtomicTxStatus", {
-      txID: txId,
-    });
-    if (status === "Accepted") return;
-    if (status === "Dropped") throw new Error(`export tx ${txId} was dropped`);
+    try {
+      const { blockHeight } = await rpc<{ blockHeight?: string }>("/ext/bc/C/avax", "avax.getAtomicTx", {
+        txID: txId,
+        encoding: "hex",
+      });
+      if (blockHeight) return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!/not found|could not find tx|HTTP 429/i.test(message)) throw error;
+    }
     await sleep(2_000);
   }
   throw new Error(`timed out waiting for export tx ${txId} to be accepted`);
